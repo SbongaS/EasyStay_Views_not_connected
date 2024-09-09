@@ -1,28 +1,21 @@
 package za.ac.cput.entity;
 
-import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import java.util.Objects;
 
-@Entity
 public class Guest {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long guestId;
     private String guestFirstName;
     private String guestLastName;
     private LocalDate guestDateOfBirth;
     private String guestGender;
-
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "addressId", referencedColumnName = "addressId")
-    private Address address;
-
-    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    @JoinColumn(name = "contactId", referencedColumnName = "contactId")
-    private Contact contact;
-
+    private String phoneNumber;
+    private String streetAddress;
+    private String suburb;  // Fixed typo
+    private String city;
+    private String postalCode;
+    private String country;
+    private String email;
     protected Guest() {}
 
     private Guest(Builder builder) {
@@ -31,8 +24,6 @@ public class Guest {
         this.guestLastName = builder.guestLastName;
         this.guestDateOfBirth = builder.guestDateOfBirth;
         this.guestGender = builder.guestGender;
-        this.address = builder.address;
-        this.contact = builder.contact;
     }
 
     public Long getGuestId() {
@@ -55,12 +46,32 @@ public class Guest {
         return guestGender;
     }
 
-    public Address getAddress() {
-        return address;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public Contact getContact() {
-        return contact;
+    public String getStreetAddress() {
+        return streetAddress;
+    }
+
+    public String getSuburb() {
+        return suburb;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     @Override
@@ -68,12 +79,12 @@ public class Guest {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Guest guest = (Guest) o;
-        return guestId == guest.guestId && Objects.equals(guestFirstName, guest.guestFirstName) && Objects.equals(guestLastName, guest.guestLastName) && Objects.equals(guestDateOfBirth, guest.guestDateOfBirth) && Objects.equals(guestGender, guest.guestGender) && Objects.equals(address, guest.address) && Objects.equals(contact, guest.contact);
+        return guestId == guest.guestId && Objects.equals(guestFirstName, guest.guestFirstName) && Objects.equals(guestLastName, guest.guestLastName) && Objects.equals(guestDateOfBirth, guest.guestDateOfBirth) && Objects.equals(guestGender, guest.guestGender) && Objects.equals(phoneNumber, guest.phoneNumber) && Objects.equals(streetAddress, guest.streetAddress) && Objects.equals(suburb, guest.suburb) && Objects.equals(city, guest.city) && Objects.equals(postalCode, guest.postalCode) && Objects.equals(country, guest.country) && Objects.equals(email, guest.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(guestId, guestFirstName, guestLastName, guestDateOfBirth, guestGender, address, contact);
+        return Objects.hash(guestId, guestFirstName, guestLastName, guestDateOfBirth, guestGender, phoneNumber, streetAddress, suburb, city, postalCode, country, email);
     }
 
     @Override
@@ -82,10 +93,15 @@ public class Guest {
                 "guestId=" + guestId +
                 ", guestFirstName='" + guestFirstName + '\'' +
                 ", guestLastName='" + guestLastName + '\'' +
-                ", guestDateOfBirth='" + guestDateOfBirth + '\'' +
+                ", guestDateOfBirth=" + guestDateOfBirth +
                 ", guestGender='" + guestGender + '\'' +
-                ", address=" + address +
-                ", contact=" + contact +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", streetAddress='" + streetAddress + '\'' +
+                ", suburb='" + suburb + '\'' +
+                ", city='" + city + '\'' +
+                ", postalCode='" + postalCode + '\'' +
+                ", country='" + country + '\'' +
+                ", email='" + email + '\'' +
                 '}';
     }
 
@@ -95,8 +111,13 @@ public class Guest {
         private String guestLastName;
         private LocalDate guestDateOfBirth;
         private String guestGender;
-        private Address address;
-        private Contact contact;
+        private String phoneNumber;
+        private String streetAddress;
+        private String suburb;  // Fixed typo
+        private String city;
+        private String postalCode;
+        private String country;
+        private String email;
 
         public Builder setGuestId(Long guestId) {
             this.guestId = guestId;
@@ -119,12 +140,35 @@ public class Guest {
             this.guestGender = guestGender;
             return this;
         }
-        public Builder setAddress(Address address) {
-            this.address = address;
+        public Builder setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
             return this;
         }
-        public Builder setContact(Contact contact) {
-            this.contact = contact;
+        public Builder setStreetAddress(String streetAddress) {
+            this.streetAddress = streetAddress;
+            return this;
+        }
+        public Builder setSuburb(String suburb) {
+            this.suburb = suburb;
+            return this;
+        }
+        public Builder setCity(String city) {
+            this.city = city;
+            return this;
+        }
+
+        public Builder setPostalCode(String postalCode) {
+            this.postalCode = postalCode;
+            return this;
+        }
+
+        public Builder setCountry(String country) {
+            this.country = country;
+            return this;
+        }
+
+        public Builder setEmail(String email) {
+            this.email = email;
             return this;
         }
 
@@ -133,7 +177,14 @@ public class Guest {
             this.guestFirstName = guest.guestFirstName;
             this.guestLastName = guest.guestLastName;
             this.guestDateOfBirth = guest.guestDateOfBirth;
-
+            this.guestGender = guest.guestGender;
+            this.phoneNumber = guest.phoneNumber;
+            this.streetAddress = guest.streetAddress;
+            this.suburb = guest.suburb;
+            this.city = guest.city;
+            this.postalCode = guest.postalCode;
+            this.country = guest.country;
+            this.email = guest.email;
             return this;
         }
         public Guest build() {

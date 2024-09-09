@@ -1,17 +1,10 @@
 package za.ac.cput.entity;
-
-import jakarta.persistence.*;
 import za.ac.cput.entity.enums.RoleType;
 
 import java.util.Objects;
 
-@Entity
 public class Role {
-    @Id
-    @GeneratedValue
     private long roleId;
-    @Enumerated(EnumType.STRING)
-    @Column(unique = true, nullable = false)
     private RoleType roleType;
 
     protected Role() {}

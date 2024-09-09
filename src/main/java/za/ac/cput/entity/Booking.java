@@ -1,29 +1,15 @@
 package za.ac.cput.entity;
-
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Entity
 public class Booking {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long bookingId;
-    @CreationTimestamp
     private LocalDateTime bookingDate;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private double totalAmount;
-
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "guest_id", nullable = false)
     private Guest guest;
-
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "room_id")
     private Room room;
 
     protected Booking() {}

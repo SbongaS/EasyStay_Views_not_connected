@@ -1,38 +1,18 @@
 package za.ac.cput.entity;
-
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
-
-@Entity
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userId;
-    @CreationTimestamp
-    private LocalDateTime createdDate;
     private String firstName;
     private String lastName;
-    @Column(unique = true, nullable = false)
     private String userName;
     private String password;
-
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "role_role_id", nullable = false)
     private Role role;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Receptionist receptionist;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Manager manager;
 
     protected User() {}
 
     private User(Builder builder) {
         this.userId = builder.userId;
-        this.createdDate = builder.createdDate;
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.userName = builder.userName;
@@ -42,10 +22,6 @@ public class User {
 
     public long getUserId() {
         return userId;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
     }
 
     public String getFirstName() {
@@ -73,19 +49,18 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return userId == user.userId && Objects.equals(createdDate, user.createdDate) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(userName, user.userName) && Objects.equals(password, user.password) && Objects.equals(role, user.role) && Objects.equals(receptionist, user.receptionist) && Objects.equals(manager, user.manager);
+        return userId == user.userId && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(userName, user.userName) && Objects.equals(password, user.password) && Objects.equals(role, user.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, createdDate, firstName, lastName, userName, password, role, receptionist, manager);
+        return Objects.hash(userId, firstName, lastName, userName, password, role);
     }
 
     @Override
     public String toString() {
         return "User{" +
                 "userId=" + userId +
-                ", createdDate=" + createdDate +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", userName='" + userName + '\'' +
@@ -96,7 +71,6 @@ public class User {
 
     public static class Builder {
         private long userId;
-        private LocalDateTime createdDate;
         private String firstName;
         private String lastName;
         private String userName;
@@ -105,10 +79,6 @@ public class User {
 
         public Builder setUserId(long userId) {
             this.userId = userId;
-            return this;
-        }
-        public Builder setCreatedDate(LocalDateTime createdDate) {
-            this.createdDate = createdDate;
             return this;
         }
 
@@ -138,7 +108,6 @@ public class User {
 
         public Builder copy(User user) {
             this.userId = user.getUserId();
-            this.createdDate = user.getCreatedDate();
             this.firstName = user.getFirstName();
             this.lastName = user.getLastName();
             this.userName = user.getUserName();

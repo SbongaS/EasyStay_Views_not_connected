@@ -1,17 +1,9 @@
 package za.ac.cput.entity;
 
-import jakarta.persistence.*;
-
 import java.util.Objects;
 
-@Entity
 public class Manager {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long managerId;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
     private User user;
 
     protected Manager() {}

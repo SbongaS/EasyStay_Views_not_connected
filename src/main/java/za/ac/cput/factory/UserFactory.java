@@ -17,7 +17,6 @@ public class UserFactory {
         }
         return new User.Builder()
                 .setUserId(userId)
-                .setCreatedDate(createdDate)
                 .setFirstName(firstName)
                 .setLastName(lastName)
                 .setUserName(userName)
@@ -27,13 +26,12 @@ public class UserFactory {
     }
 
     // Factory method to create a User without an ID
-    public static User buildUserWithoutId(LocalDateTime createdDate,String firstName, String lastName, String userName, String password,
+    public static User buildUserWithoutId(String firstName, String lastName, String userName, String password,
                                           Role role) {
-        if (createdDate == null || userName == null || password == null || role == null) {
+        if (userName == null || password == null || role == null) {
             return null;
         }
         return new User.Builder()
-                .setCreatedDate(createdDate)
                 .setFirstName(firstName)
                 .setLastName(lastName)
                 .setUserName(userName)

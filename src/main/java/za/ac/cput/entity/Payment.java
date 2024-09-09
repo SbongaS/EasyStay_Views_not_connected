@@ -1,38 +1,17 @@
 package za.ac.cput.entity;
-
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 import za.ac.cput.entity.enums.PaymentMethod;
 import za.ac.cput.entity.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Entity
 public class Payment {
-    @Id
-    @GeneratedValue
     private long paymentId;
-
-    @Column(unique = true, nullable = false)
     private String transactionId;
-
-    @CreationTimestamp
     private LocalDateTime paymentDate;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(nullable = false)
     private Booking booking;
-
-    @Column(nullable = false)
     private double totalPrice;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private PaymentStatus paymentStatus;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private PaymentMethod paymentMethod;
 
     protected Payment() {}

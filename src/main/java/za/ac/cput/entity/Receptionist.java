@@ -1,17 +1,9 @@
 package za.ac.cput.entity;
 
-import jakarta.persistence.*;
-
 import java.util.Objects;
 
-@Entity
 public class Receptionist {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long receptionistId;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
     private User user;
 
     protected Receptionist() {}
