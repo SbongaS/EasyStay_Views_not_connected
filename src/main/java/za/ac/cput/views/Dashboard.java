@@ -1,5 +1,9 @@
 package za.ac.cput.views;
 
+import za.ac.cput.views.BookingViews.BookingInfo;
+import za.ac.cput.views.BookingViews.BookingView;
+import za.ac.cput.views.BookingViews.RoomSearch;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -124,15 +128,29 @@ public class Dashboard extends JFrame implements ActionListener {
 
     // Method to load the RoomSearch panel into the central space
     private void displayRoomSearch() {
-        // Remove any existing components in the panelEast
         panelEast.removeAll();
-
-        // Create an instance of RoomSearch and add it to the panelEast
-        RoomSearch roomSearch = new RoomSearch();
+        RoomSearch roomSearch = new RoomSearch(this);
         panelEast.setLayout(new BorderLayout());
         panelEast.add(roomSearch.getContentPane(), BorderLayout.CENTER);
+        panelEast.revalidate();
+        panelEast.repaint();
+    }
 
-        // Revalidate and repaint the panelEast to show the new content
+    private void displayBookingInfo(){
+        panelEast.removeAll();
+        BookingInfo bookingInfo = new BookingInfo();
+        panelEast.setLayout(new BorderLayout());
+        panelEast.add(bookingInfo.getContentPane(), BorderLayout.CENTER);
+        panelEast.revalidate();
+        panelEast.repaint();
+    }
+
+    // Method to load GuestDetails form into the central space
+    private void displayGuestDetails() {
+        panelEast.removeAll();
+        BookingView guestDetails = new BookingView();
+        panelEast.setLayout(new BorderLayout());
+        panelEast.add(guestDetails.getContentPane(), BorderLayout.CENTER);
         panelEast.revalidate();
         panelEast.repaint();
     }
@@ -146,7 +164,19 @@ public class Dashboard extends JFrame implements ActionListener {
             System.out.println("Booking button clicked");
             displayRoomSearch();
         }
-        // Add more conditions for other buttons as needed
+        else if (e.getSource() == btnBookingDetails) {
+            System.out.println("Booking Details button clicked");
+            displayBookingInfo();
+        }
+        else if (e.getSource() == btnGuests) {
+            System.out.println("Guests button clicked");
+
+        }
+    }
+
+    // Method to display GuestDetails when the "Book" button is clicked in RoomSearch
+    public void displayGuestDetailsFromRoomSearch() {
+        displayGuestDetails();
     }
 
     public static void main(String[] args) {

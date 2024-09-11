@@ -1,6 +1,5 @@
-package za.ac.cput.views;
+package za.ac.cput.views.BookingViews;
 
-import com.google.gson.Gson;
 import okhttp3.*;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
@@ -8,12 +7,12 @@ import org.jdatepicker.impl.SqlDateModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import za.ac.cput.util.DateLabelFormatter;
+import za.ac.cput.views.Dashboard;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,6 +26,8 @@ public class RoomSearch extends JFrame implements ActionListener {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final OkHttpClient client = new OkHttpClient();
     private static final String BASE_URL = "http://localhost:8080/easyStayHotel/room";
+
+    private Dashboard dashboard;
 
     // Panels
     private JPanel panelNorth, panelCenter;
@@ -42,10 +43,10 @@ public class RoomSearch extends JFrame implements ActionListener {
     private String[] columnNames = {"Room Number", "Price", "Room Type", "Action"};
     private DefaultTableModel tableModel;
 
-
-
-    public RoomSearch() {
+    public RoomSearch(Dashboard dashboard) {
         super("Room Search");
+
+        this.dashboard = dashboard;
 
         // Initialize the panels
         panelNorth = new JPanel();
@@ -93,6 +94,7 @@ public class RoomSearch extends JFrame implements ActionListener {
 
         btnSearch.addActionListener(this);
 
+        // Set frame properties
 //        this.setSize(800, 600);  // Set appropriate size
 //        this.setVisible(true);
 //        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -121,6 +123,21 @@ public class RoomSearch extends JFrame implements ActionListener {
             // Fetch dates from the date pickers
             LocalDate checkInDate = ((Date) datePickerCheckIn.getModel().getValue()).toLocalDate();
             LocalDate checkOutDate = ((Date) datePickerCheckOut.getModel().getValue()).toLocalDate();
+
+            // Get today's date
+            LocalDate today = LocalDate.now();
+
+            // Validate that check-in is not before today
+            if (checkInDate.isBefore(today)) {
+                JOptionPane.showMessageDialog(this, "Check-in date cannot be in the past.");
+                return;
+            }
+
+            // Validate that check-out is after check-in
+            if (checkOutDate.isBefore(checkInDate) || checkOutDate.isEqual(checkInDate)) {
+                JOptionPane.showMessageDialog(this, "Check-out date must be after the check-in date.");
+                return;
+            }
 
             // Format dates
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
@@ -161,7 +178,7 @@ public class RoomSearch extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new RoomSearch();
+
     }
 
     // Custom renderer for the button in the table
@@ -189,14 +206,16 @@ public class RoomSearch extends JFrame implements ActionListener {
             button = new JButton();
             button.setOpaque(true);
 
-            // Add action listener for the button
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     fireEditingStopped();
+                    dashboard.displayGuestDetailsFromRoomSearch();
                 }
             });
         }
+
+
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
@@ -211,7 +230,8 @@ public class RoomSearch extends JFrame implements ActionListener {
         public Object getCellEditorValue() {
             if (clicked) {
                 // Perform booking action when button is clicked
-                JOptionPane.showMessageDialog(button, "Room Booked!");
+                // This is handled in the ActionListener above
+
             }
             clicked = false;
             return label;
