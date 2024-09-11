@@ -1,7 +1,7 @@
 package za.ac.cput.views;
 
 import za.ac.cput.views.BookingViews.BookingInfo;
-import za.ac.cput.views.BookingViews.BookingView;
+//import za.ac.cput.views.BookingViews.BookingView;
 import za.ac.cput.views.BookingViews.RoomSearch;
 
 import javax.swing.*;
@@ -145,10 +145,11 @@ public class Dashboard extends JFrame implements ActionListener {
         panelEast.repaint();
     }
 
+
     // Method to load GuestDetails form into the central space
     private void displayGuestDetails() {
         panelEast.removeAll();
-        BookingView guestDetails = new BookingView();
+        GuestView guestDetails = new GuestView();
         panelEast.setLayout(new BorderLayout());
         panelEast.add(guestDetails.getContentPane(), BorderLayout.CENTER);
         panelEast.revalidate();
@@ -170,13 +171,13 @@ public class Dashboard extends JFrame implements ActionListener {
         }
         else if (e.getSource() == btnGuests) {
             System.out.println("Guests button clicked");
-
+            displayGuestDetails();
         }
     }
 
     // Method to display GuestDetails when the "Book" button is clicked in RoomSearch
     public void displayGuestDetailsFromRoomSearch() {
-        displayGuestDetails();
+//        displayGuestDetails();
     }
 
     public static void main(String[] args) {
