@@ -28,7 +28,7 @@ public class UserFactory {
     // Factory method to create a User without an ID
     public static User buildUserWithoutId(String firstName, String lastName, String userName, String password,
                                           Role role) {
-        if (userName == null || password == null || role == null) {
+        if (Helper.isValidEmail(userName) ||Helper.isNullorEmpty(firstName)||Helper.isNullorEmpty(lastName) || password == null || role == null) {
             return null;
         }
         return new User.Builder()

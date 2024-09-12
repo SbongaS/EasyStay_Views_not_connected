@@ -25,4 +25,5 @@ public class RoleFactory {
                 .roleType(roleType)
                 .build();
     }
+
 }
