@@ -24,6 +24,13 @@ public class Guest {
         this.guestLastName = builder.guestLastName;
         this.guestDateOfBirth = builder.guestDateOfBirth;
         this.guestGender = builder.guestGender;
+        this.phoneNumber = builder.phoneNumber;
+        this.streetAddress = builder.streetAddress;
+        this.suburb = builder.suburb;
+        this.city = builder.city;
+        this.postalCode = builder.postalCode;
+        this.country = builder.country;
+        this.email = builder.email;
     }
 
     public Long getGuestId() {
