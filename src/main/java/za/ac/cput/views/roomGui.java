@@ -138,8 +138,9 @@ public class roomGui extends JFrame implements ActionListener {
         if (e.getSource() == deleteButton) {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                String roomNumber = (String) tableModel.getValueAt(selectedRow, 0);
-                handleDeleteRoom(roomNumber);
+                // Ensure roomNumber is a Long
+                Long roomNumber = (Long) tableModel.getValueAt(selectedRow, 0);
+                handleDeleteRoom((roomNumber));
                 tableModel.removeRow(selectedRow);
                 showAlert("Success", "Room deleted successfully!", JOptionPane.INFORMATION_MESSAGE);
             }
@@ -147,6 +148,7 @@ public class roomGui extends JFrame implements ActionListener {
             handleAddRoom();
         }
     }
+
 
     // Handle adding a new room
     private void handleAddRoom() {
@@ -205,19 +207,30 @@ public class roomGui extends JFrame implements ActionListener {
     }
 
     // Delete room from the server
-    private void handleDeleteRoom(String roomNumber) {
-        String URL = "http://localhost:8080/easyStayHotel/room/delete/" + roomNumber;
+    private void handleDeleteRoom(Long roomNumber) {
+        String url = "http://localhost:8080/easyStayHotel/room/delete/" + roomNumber;
+        System.out.println("Sending DELETE request to URL: " + url); // Log the URL being used
 
-        Request request = new Request.Builder().url(URL).delete().build();
+        // Create a DELETE request
+        Request request = new Request.Builder()
+                .url(url)
+                .delete() // Indicates that this is a DELETE request
+                .build();
 
+        // Execute the request and handle the response
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response.body().string());
+                String responseBody = response.body().string();
+                throw new IOException("Unexpected code " + response + " with body: " + responseBody);
             }
+
+            System.out.println("Room with number " + roomNumber + " deleted successfully.");
         } catch (IOException e) {
-            showAlert("Error", "Failed to delete room: " + e.getMessage(), JOptionPane.ERROR_MESSAGE);
+            System.out.println("Error sending data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
+
 
     // Save room to the server
     private void saveRoom(Room room) {
