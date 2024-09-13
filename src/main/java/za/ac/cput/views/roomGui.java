@@ -1,0 +1,262 @@
+package za.ac.cput.views;
+
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import okhttp3.*;
+import za.ac.cput.entity.Room;
+import za.ac.cput.entity.enums.RoomType;
+import za.ac.cput.factory.RoomFactory;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+
+public class roomGui extends JFrame implements ActionListener {
+
+    private static final OkHttpClient client = new OkHttpClient();
+    private static final Gson gson = new GsonBuilder().create();
+
+    private JPanel tablePanel, buttonPanel, formPanel;
+    private JTable table;
+    private DefaultTableModel tableModel;
+    private JButton deleteButton, addButton;
+    private JTextField roomNumberField, priceField;
+    private JComboBox<RoomType> roomTypeComboBox;
+
+    public roomGui() {
+        super("Room Management");
+
+        // Create the table and make it scrollable
+        tableModel = new DefaultTableModel();
+        tableModel.addColumn("Room Number");
+        tableModel.addColumn("Room Type");
+        tableModel.addColumn("Price");
+
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(400, 400));
+
+        // Add row selection listener to enable/disable the delete button
+        table.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting() && table.getSelectedRow() != -1) {
+                deleteButton.setEnabled(true);
+            } else {
+                deleteButton.setEnabled(false);
+            }
+        });
+
+        populateTable();
+
+        // Create Delete button
+        deleteButton = new JButton("Delete");
+        deleteButton.setEnabled(false);
+        deleteButton.addActionListener(this);
+
+        // Create Add button
+        addButton = new JButton("Add Room");
+        addButton.setBackground(new Color(0, 123, 255));
+        addButton.setForeground(Color.WHITE);
+        addButton.addActionListener(this);
+
+        // Panel for buttons
+        buttonPanel = new JPanel();
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(addButton);
+
+        // Layout for the table and delete button at the bottom
+        tablePanel = new JPanel(new BorderLayout());
+        tablePanel.add(scrollPane, BorderLayout.CENTER);
+        tablePanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Creating the form for adding rooms
+        JLabel roomNumberLabel = new JLabel("Room Number:");
+        roomNumberField = new JTextField(15);
+
+        JLabel roomTypeLabel = new JLabel("Room Type:");
+        roomTypeComboBox = new JComboBox<>(RoomType.values());
+
+        JLabel priceLabel = new JLabel("Price:");
+        priceField = new JTextField(15);
+
+        // Layout for form panel
+        formPanel = new JPanel();
+        formPanel.setLayout(new GridBagLayout());
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Add components to form panel
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        formPanel.add(roomNumberLabel, gbc);
+
+        gbc.gridx = 1;
+        formPanel.add(roomNumberField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        formPanel.add(roomTypeLabel, gbc);
+
+        gbc.gridx = 1;
+        formPanel.add(roomTypeComboBox, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        formPanel.add(priceLabel, gbc);
+
+        gbc.gridx = 1;
+        formPanel.add(priceField, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.CENTER;
+        formPanel.add(addButton, gbc);
+
+        // Split pane for placing the table and form side by side
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tablePanel, formPanel);
+        splitPane.setResizeWeight(0.5);
+
+        // Add the split pane to the frame
+        setLayout(new BorderLayout());
+        add(splitPane, BorderLayout.CENTER);
+
+        // Frame settings
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(800, 500);
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+
+    // Handle button clicks
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == deleteButton) {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                String roomNumber = (String) tableModel.getValueAt(selectedRow, 0);
+                handleDeleteRoom(roomNumber);
+                tableModel.removeRow(selectedRow);
+                showAlert("Success", "Room deleted successfully!", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else if (e.getSource() == addButton) {
+            handleAddRoom();
+        }
+    }
+
+    // Handle adding a new room
+    private void handleAddRoom() {
+        String roomNumberStr = roomNumberField.getText();
+        RoomType roomType = (RoomType) roomTypeComboBox.getSelectedItem();
+        String priceStr = priceField.getText();
+
+        // Validate inputs
+        if (roomNumberStr.isEmpty() || priceStr.isEmpty()) {
+            showAlert("Error", "Room Number and Price cannot be empty.", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        long roomNumber = Long.parseLong(roomNumberStr);
+        double pricePerNight = Double.parseDouble(priceStr);
+
+        // Create new room object
+        Room newRoom = RoomFactory.buildRoom(roomNumber, pricePerNight,roomType);
+
+        // Save room via API
+        saveRoom(newRoom);
+
+        // Add room to table
+        tableModel.addRow(new Object[]{roomNumber, roomType.toString(), pricePerNight});
+
+        // Clear fields
+        roomNumberField.setText("");
+        priceField.setText("");
+        roomTypeComboBox.setSelectedIndex(0);
+    }
+
+    // Populate the table with room data from the server
+    private void populateTable() {
+        try {
+            final String URL = "http://localhost:8080/easyStayHotel/room/all";
+            String response = run(URL);
+
+            if (response == null || response.isEmpty()) {
+                showAlert("Error", "No rooms found.", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Room[] rooms = gson.fromJson(response, Room[].class);
+
+            // Clear existing rows
+            tableModel.setRowCount(0);
+
+            // Populate table
+            for (Room room : rooms) {
+                tableModel.addRow(new Object[]{room.getRoomNumber(), room.getRoomType().toString(), room.getPricePerNight()});
+            }
+
+        } catch (Exception e) {
+            showAlert("Error", "Failed to fetch rooms.", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Delete room from the server
+    private void handleDeleteRoom(String roomNumber) {
+        String URL = "http://localhost:8080/easyStayHotel/room/delete/" + roomNumber;
+
+        Request request = new Request.Builder().url(URL).delete().build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response.body().string());
+            }
+        } catch (IOException e) {
+            showAlert("Error", "Failed to delete room: " + e.getMessage(), JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Save room to the server
+    private void saveRoom(Room room) {
+        try {
+            final String URL = "http://localhost:8080/easyStayHotel/room/save";
+            String jsonRoom = gson.toJson(room);
+            RequestBody body = RequestBody.create(jsonRoom, MediaType.get("application/json; charset=utf-8"));
+            Request request = new Request.Builder().url(URL).post(body).build();
+
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response.body().string());
+                }
+            }
+
+        } catch (IOException e) {
+            showAlert("Error", "Failed to save room: " + e.getMessage(), JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Utility method to run the HTTP request
+    private static String run(String URL) throws IOException {
+        Request request = new Request.Builder().url(URL).build();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response.body().string());
+            }
+            return response.body().string();
+        }
+    }
+
+    // Show alert dialog
+    private void showAlert(String title, String message, int messageType) {
+        JOptionPane.showMessageDialog(this, message, title, messageType);
+    }
+
+    public static void main(String[] args) {
+        new roomGui();
+    }
+}
+
+
