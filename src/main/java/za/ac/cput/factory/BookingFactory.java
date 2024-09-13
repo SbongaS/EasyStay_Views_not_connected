@@ -27,14 +27,13 @@ public class BookingFactory {
     }
 
     // Factory method to create a Booking without an ID
-    public static Booking buildBookingWithoutId(LocalDateTime bookingDate, LocalDate checkInDate, LocalDate checkOutDate,
+    public static Booking buildBookingWithoutId( LocalDate checkInDate, LocalDate checkOutDate,
                                                 Double totalAmount, Guest guest, Room room) {
-        if (bookingDate == null || checkInDate == null || checkOutDate == null || totalAmount == null ||
+        if ( checkInDate == null || checkOutDate == null || totalAmount == null ||
                 totalAmount <= 0 || guest == null || room == null) {
             return null;
         }
         return new Booking.Builder()
-                .setBookingDate(bookingDate)
                 .setCheckInDate(checkInDate)
                 .setCheckOutDate(checkOutDate)
                 .setTotalAmount(totalAmount)

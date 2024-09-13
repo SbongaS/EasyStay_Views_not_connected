@@ -30,7 +30,6 @@ public class roomGui extends JFrame implements ActionListener {
     public roomGui() {
         super("Room Management");
 
-        // Create the table and make it scrollable
         tableModel = new DefaultTableModel();
         tableModel.addColumn("Room Number");
         tableModel.addColumn("Room Type");
@@ -40,7 +39,6 @@ public class roomGui extends JFrame implements ActionListener {
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(400, 400));
 
-        // Add row selection listener to enable/disable the delete button
         table.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting() && table.getSelectedRow() != -1) {
                 deleteButton.setEnabled(true);
@@ -51,28 +49,23 @@ public class roomGui extends JFrame implements ActionListener {
 
         populateTable();
 
-        // Create Delete button
         deleteButton = new JButton("Delete");
         deleteButton.setEnabled(false);
         deleteButton.addActionListener(this);
 
-        // Create Add button
         addButton = new JButton("Add Room");
         addButton.setBackground(new Color(0, 123, 255));
         addButton.setForeground(Color.WHITE);
         addButton.addActionListener(this);
 
-        // Panel for buttons
         buttonPanel = new JPanel();
         buttonPanel.add(deleteButton);
         buttonPanel.add(addButton);
 
-        // Layout for the table and delete button at the bottom
         tablePanel = new JPanel(new BorderLayout());
         tablePanel.add(scrollPane, BorderLayout.CENTER);
         tablePanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Creating the form for adding rooms
         JLabel roomNumberLabel = new JLabel("Room Number:");
         roomNumberField = new JTextField(15);
 
@@ -117,19 +110,16 @@ public class roomGui extends JFrame implements ActionListener {
         gbc.anchor = GridBagConstraints.CENTER;
         formPanel.add(addButton, gbc);
 
-        // Split pane for placing the table and form side by side
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tablePanel, formPanel);
         splitPane.setResizeWeight(0.5);
 
-        // Add the split pane to the frame
         setLayout(new BorderLayout());
         add(splitPane, BorderLayout.CENTER);
 
-        // Frame settings
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 500);
-        setLocationRelativeTo(null);
-        setVisible(true);
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setSize(800, 500);
+//        setLocationRelativeTo(null);
+//        setVisible(true);
     }
 
     // Handle button clicks
@@ -165,22 +155,17 @@ public class roomGui extends JFrame implements ActionListener {
         long roomNumber = Long.parseLong(roomNumberStr);
         double pricePerNight = Double.parseDouble(priceStr);
 
-        // Create new room object
         Room newRoom = RoomFactory.buildRoom(roomNumber, pricePerNight,roomType);
 
-        // Save room via API
         saveRoom(newRoom);
 
-        // Add room to table
         tableModel.addRow(new Object[]{roomNumber, roomType.toString(), pricePerNight});
 
-        // Clear fields
         roomNumberField.setText("");
         priceField.setText("");
         roomTypeComboBox.setSelectedIndex(0);
     }
 
-    // Populate the table with room data from the server
     private void populateTable() {
         try {
             final String URL = "http://localhost:8080/easyStayHotel/room/all";
@@ -209,12 +194,12 @@ public class roomGui extends JFrame implements ActionListener {
     // Delete room from the server
     private void handleDeleteRoom(Long roomNumber) {
         String url = "http://localhost:8080/easyStayHotel/room/delete/" + roomNumber;
-        System.out.println("Sending DELETE request to URL: " + url); // Log the URL being used
+        System.out.println("Sending DELETE request to URL: " + url);
 
         // Create a DELETE request
         Request request = new Request.Builder()
                 .url(url)
-                .delete() // Indicates that this is a DELETE request
+                .delete()
                 .build();
 
         // Execute the request and handle the response
@@ -267,9 +252,6 @@ public class roomGui extends JFrame implements ActionListener {
         JOptionPane.showMessageDialog(this, message, title, messageType);
     }
 
-    public static void main(String[] args) {
-        new roomGui();
-    }
 }
 
 

@@ -5,9 +5,7 @@ import java.util.Objects;
 public class Room {
     private long roomNumber;
     private double pricePerNight;
-
     private RoomType roomType;
-
 
     protected Room() {}
 

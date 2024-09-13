@@ -164,10 +164,10 @@ public class UserScreen extends JFrame implements ActionListener {
         add(splitPane, BorderLayout.CENTER);
 
         // Frame settings
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 500);
-        setLocationRelativeTo(null);
-        setVisible(true);
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setSize(800, 500);
+//        setLocationRelativeTo(null);
+//        setVisible(true);
     }
     private void validateInputs(){
 
@@ -359,8 +359,4 @@ public class UserScreen extends JFrame implements ActionListener {
         }
     }
 
-
-    public static void main(String[] args) {
-        new UserScreen();
-    }
 }
