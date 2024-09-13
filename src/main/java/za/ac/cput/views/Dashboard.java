@@ -20,7 +20,7 @@ public class Dashboard extends JFrame implements ActionListener {
     private JButton btnLogout;
 
     // West panel components (buttons)
-    private JButton btnBooking, btnCheckout, btnBookingDetails, btnCancelBooking, btnRooms, btnGuests, btnHomePage;
+    private JButton userScreenButton,btnBooking, btnCheckout, btnBookingDetails, btnCancelBooking, btnRooms, btnGuests, btnHomePage;
 
     // Fonts for styling
     private Font headerFont = new Font("Arial", Font.BOLD, 36);
@@ -50,7 +50,7 @@ public class Dashboard extends JFrame implements ActionListener {
         btnRooms = new JButton("ROOMS");
         btnGuests = new JButton("GUESTS");
         btnHomePage = new JButton("HOME-PAGE");
-
+        userScreenButton = new JButton("User-Screen");
         // Set up the GUI
         setGUI();
     }
@@ -83,6 +83,7 @@ public class Dashboard extends JFrame implements ActionListener {
         addButtonToPanel(panelWest, btnRooms);
         addButtonToPanel(panelWest, btnGuests);
         addButtonToPanel(panelWest, btnHomePage);
+        addButtonToPanel(panelWest, userScreenButton);
 
         // East panel (empty space for now)
         panelEast.setBackground(Color.WHITE);
@@ -101,6 +102,7 @@ public class Dashboard extends JFrame implements ActionListener {
         btnGuests.addActionListener(this);
         btnHomePage.addActionListener(this);
         btnLogout.addActionListener(this);
+        userScreenButton.addActionListener(this);
 
         // Frame settings
         this.setSize(1200, 700);  // Set appropriate size
@@ -172,6 +174,12 @@ public class Dashboard extends JFrame implements ActionListener {
         else if (e.getSource() == btnGuests) {
             System.out.println("Guests button clicked");
             displayGuestDetails();
+        }
+        else if (e.getSource() == userScreenButton) {
+            System.out.println("Guests button clicked");
+            UserScreen userScreen = new UserScreen();
+            userScreen.setVisible(true);
+
         }
     }
 
