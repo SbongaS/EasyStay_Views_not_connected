@@ -27,7 +27,7 @@ public class RoomSearch extends JFrame implements ActionListener {
     private static final OkHttpClient client = new OkHttpClient();
     private static final String BASE_URL = "http://localhost:8080/easyStayHotel/room";
 
-    private Dashboard dashboard;
+    private Dashboard dashboard; // Reference to the Dashboard
 
     // Panels
     private JPanel panelNorth, panelCenter;
@@ -46,7 +46,7 @@ public class RoomSearch extends JFrame implements ActionListener {
     public RoomSearch(Dashboard dashboard) {
         super("Room Search");
 
-        this.dashboard = dashboard;
+        this.dashboard = dashboard; // Assign the dashboard reference
 
         // Initialize the panels
         panelNorth = new JPanel();
@@ -124,18 +124,14 @@ public class RoomSearch extends JFrame implements ActionListener {
             LocalDate checkInDate = ((Date) datePickerCheckIn.getModel().getValue()).toLocalDate();
             LocalDate checkOutDate = ((Date) datePickerCheckOut.getModel().getValue()).toLocalDate();
 
-            // Get today's date
-            LocalDate today = LocalDate.now();
-
-            // Validate that check-in is not before today
-            if (checkInDate.isBefore(today)) {
+            // Validate the dates
+            if (checkInDate.isBefore(LocalDate.now())) {
                 JOptionPane.showMessageDialog(this, "Check-in date cannot be in the past.");
                 return;
             }
 
-            // Validate that check-out is after check-in
             if (checkOutDate.isBefore(checkInDate) || checkOutDate.isEqual(checkInDate)) {
-                JOptionPane.showMessageDialog(this, "Check-out date must be after the check-in date.");
+                JOptionPane.showMessageDialog(this, "Check-out date must be after check-in date.");
                 return;
             }
 
@@ -148,13 +144,13 @@ public class RoomSearch extends JFrame implements ActionListener {
             String url = BASE_URL + "/available?checkInDate=" + formattedCheckInDate + "&checkOutDate=" + formattedCheckOutDate;
             String jsonResponse = run(url);
 
-            // Parse the JSON response
+            // Parse JSON response
             JSONArray rooms = new JSONArray(jsonResponse);
 
             // Clear previous table data
             tableModel.setRowCount(0);
 
-            // Populate the table with the new available rooms
+            // Populate the table with new available rooms
             for (int i = 0; i < rooms.length(); i++) {
                 JSONObject room = rooms.getJSONObject(i);
                 Long roomNumber = room.getLong("roomNumber");
@@ -162,7 +158,7 @@ public class RoomSearch extends JFrame implements ActionListener {
                 String roomType = room.getString("roomType");
 
                 // Add row to the table
-                tableModel.addRow(new Object[]{roomNumber, price, roomType, "Book"});
+                tableModel.addRow(new Object[]{roomNumber, price, roomType, "Select Room"});
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error fetching rooms: " + ex.getMessage());
@@ -177,10 +173,6 @@ public class RoomSearch extends JFrame implements ActionListener {
         }
     }
 
-    public static void main(String[] args) {
-
-    }
-
     // Custom renderer for the button in the table
     class ButtonRenderer extends JButton implements TableCellRenderer {
         public ButtonRenderer() {
@@ -188,64 +180,46 @@ public class RoomSearch extends JFrame implements ActionListener {
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus, int row, int column) {
-            setText((value == null) ? "Book" : value.toString());
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setText((value == null) ? "Select Room" : value.toString());
             return this;
         }
     }
 
     // Custom editor for the button in the table
     class ButtonEditor extends DefaultCellEditor {
-        private JButton button;
-        private String label;
-        private boolean clicked;
+    private JButton button;
+    private Long roomNumber;
+    private double price;
+    private String roomType;
 
-        public ButtonEditor(JCheckBox checkBox) {
-            super(checkBox);
-            button = new JButton();
-            button.setOpaque(true);
-
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    fireEditingStopped();
-                    dashboard.displayGuestDetailsFromRoomSearch();
-                }
-            });
-        }
-
-
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value,
-                                                     boolean isSelected, int row, int column) {
-            label = (value == null) ? "Book" : value.toString();
-            button.setText(label);
-            clicked = true;
-            return button;
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            if (clicked) {
-                // Perform booking action when button is clicked
-                // This is handled in the ActionListener above
-
+    public ButtonEditor(JCheckBox checkBox) {
+        super(checkBox);
+        button = new JButton("Select Room");
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                openBookingForm(roomNumber, price, roomType);
             }
-            clicked = false;
-            return label;
-        }
-
-        @Override
-        public boolean stopCellEditing() {
-            clicked = false;
-            return super.stopCellEditing();
-        }
-
-        @Override
-        protected void fireEditingStopped() {
-            super.fireEditingStopped();
-        }
+        });
     }
+
+    @Override
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        roomNumber = (Long) table.getValueAt(row, 0);
+        price = (Double) table.getValueAt(row, 1);
+        roomType = (String) table.getValueAt(row, 2);
+        return button;
+    }
+
+        private void openBookingForm(Long roomNumber, double price, String roomType) {
+            LocalDate checkInDate = ((Date) datePickerCheckIn.getModel().getValue()).toLocalDate();
+            LocalDate checkOutDate = ((Date) datePickerCheckOut.getModel().getValue()).toLocalDate();
+
+            String checkIn = checkInDate.toString();
+            String checkOut = checkOutDate.toString();
+
+            // Remove current panel and show BookingForm in Dashboard
+            dashboard.showBookingForm(checkIn, checkOut, roomNumber.toString(), price, roomType);
+        }
+}
 }
