@@ -39,4 +39,10 @@ public class UserFactory {
                 .setRole(role)
                 .build();
     }
+    public static User buildUserLogin(String username, String password) {
+        if (Helper.isNullorEmpty(password)) {
+            return null;
+        }
+        return new User.Builder().setUserName(username).setPassword(password).build();
+    }
 }

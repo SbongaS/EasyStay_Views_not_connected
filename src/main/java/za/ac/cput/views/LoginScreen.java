@@ -3,6 +3,8 @@ package za.ac.cput.views;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.*;
+import za.ac.cput.entity.User;
+import za.ac.cput.factory.UserFactory;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -61,7 +63,6 @@ public class LoginScreen extends JFrame implements ActionListener {
         gbc.gridwidth = 1;
         contentPane.add(emailTextField, gbc);
 
-        // Password label and text field
         JLabel lblPassword = new JLabel("Password:");
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -93,65 +94,62 @@ public class LoginScreen extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setVisible(true);
     }
-    private void validateUser(String email, String password){
-         email = emailTextField.getText();
-         password = String.valueOf(passwordTextField.getPassword());
-        if(email.isEmpty()){
+    private void validateUser(User user){
+
+        if(user.getUserName().isEmpty()){
             JOptionPane.showMessageDialog(this, "Please enter a valid email address");
             emailTextField.requestFocus();
-        } else if (password.isEmpty()) {
+        } else if (user.getPassword().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter a password");
             passwordTextField.requestFocus();
         }else {
 
         }
     }
-    private void sendData(String email, String password) {
-        final String URL = "http://localhost:8080/easyStayHotel/user/findUserByUsernameAndPassword/" + email + password;
+    private void sendData(User user) {
+        final String URL = "http://localhost:8080/easyStayHotel/user/findUserByUsernameAndPassword";
         System.out.println("Sending data to URL: " + URL);
 
-        validateUser(email, password);
-        // Create a map to hold the email and password
-        Map<String, String> loginData = new HashMap<>();
-        loginData.put("username", email);
-        loginData.put("password", password);
+        // Validate user object before sending
+        validateUser(user);
 
-        // Convert login data to JSON
-        String jsonLoginData = gson.toJson(loginData);
+        // Convert the User object to JSON
+        String jsonLoginData = gson.toJson(user);
         System.out.println("Login data being sent: " + jsonLoginData);
 
-        // Build the request body with JSON data
+        // Create request body with the User object in JSON format
         RequestBody body = RequestBody.create(jsonLoginData, MediaType.get("application/json; charset=utf-8"));
 
-        // Create POST request
+        // Build the request
         Request request = new Request.Builder()
                 .url(URL)
                 .post(body)
                 .build();
 
-        // Execute the request in a try-catch block
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected code " + response + " with body: " + response.body().string());
             }
 
-            // Handle the server's response here
+            // Handle the server's response
             System.out.println("Response received: " + response.body().string());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Handle button actions
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == loginButton) {
             String email = emailTextField.getText();
             String password = new String(passwordTextField.getPassword());
 
-           sendData(email, password);
+            User user = UserFactory.buildUserLogin(email,password);
+            System.out.println(user);
+           sendData(user);
         } else if (e.getSource() == cancelButton) {
-            // Clear fields or close window
+            // Clear fields
             emailTextField.setText("");
             passwordTextField.setText("");
         }
