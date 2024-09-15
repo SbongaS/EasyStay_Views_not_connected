@@ -142,17 +142,20 @@ public class LoginScreen extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == loginButton) {
-            String email = emailTextField.getText();
-            String password = new String(passwordTextField.getPassword());
 
-            User user = UserFactory.buildUserLogin(email,password);
+            User user = UserFactory.buildUserLogin(emailTextField.getText(),new String(passwordTextField.getPassword()));
             System.out.println(user);
            sendData(user);
+           clearTextFields();
+            JOptionPane.showMessageDialog(contentPane, "Login Successful");
         } else if (e.getSource() == cancelButton) {
             // Clear fields
-            emailTextField.setText("");
-            passwordTextField.setText("");
+            clearTextFields();
         }
+    }
+    private void clearTextFields(){
+        emailTextField.setText("");
+        passwordTextField.setText("");
     }
 
     public static void main(String[] args) {
