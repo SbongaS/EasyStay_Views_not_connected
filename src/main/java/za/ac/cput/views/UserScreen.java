@@ -24,7 +24,7 @@ public class UserScreen extends JFrame implements ActionListener {
     private JPanel tablePanel, buttonPanel, formPanel;
     private JTable table;
     private DefaultTableModel tableModel;
-    private JButton deleteButton, addButton, updateButton;
+    private JButton deleteButton, addButton,updateButton;
     private JTextField firstNameField, lastNameField, usernameField;
     private JPasswordField passwordField;
     private JRadioButton receptionistRadio, adminRadio;
@@ -50,8 +50,8 @@ public class UserScreen extends JFrame implements ActionListener {
         table.getSelectionModel().addListSelectionListener(event -> {
             // Enable the delete button if a row is selected
             if (!event.getValueIsAdjusting() && table.getSelectedRow() != -1) {
-                deleteButton.setEnabled(true);
                 updateButton.setEnabled(true);
+                deleteButton.setEnabled(true);
             } else {
                 deleteButton.setEnabled(false);
             }
@@ -62,13 +62,19 @@ public class UserScreen extends JFrame implements ActionListener {
         // Create Delete button
         deleteButton = new JButton("Delete");
         deleteButton.setEnabled(false);
-        deleteButton.setForeground(Color.WHITE);
-        deleteButton.setBackground(new Color(0, 123, 255));
         deleteButton.addActionListener(this);
-
+        updateButton = new JButton("Update User");
+        updateButton.setEnabled(false);
+        updateButton.addActionListener(this);
         // Panel for buttons (Delete button)
         buttonPanel = new JPanel();
         buttonPanel.add(deleteButton);
+        buttonPanel.add(updateButton);
+
+        updateButton.setForeground(Color.WHITE);
+        updateButton.setBackground(new Color(0, 123, 255));
+        deleteButton.setBackground(new Color(0, 123, 255));
+        deleteButton.setForeground(Color.WHITE);
 
         // Layout for the table and delete button at the bottom
         tablePanel = new JPanel(new BorderLayout());
@@ -99,12 +105,6 @@ public class UserScreen extends JFrame implements ActionListener {
 
         // Create Add button
         addButton = new JButton("Add User");
-        updateButton = new JButton("Update User");
-        updateButton.setEnabled(false);
-        buttonPanel.add(updateButton);
-        updateButton.setForeground(Color.WHITE);
-        updateButton.setBackground(new Color(0, 123, 255));
-        updateButton.addActionListener(this);
         addButton.setBackground(new Color(0, 123, 255));
         addButton.setForeground(Color.WHITE);
         addButton.addActionListener(this);
@@ -171,10 +171,10 @@ public class UserScreen extends JFrame implements ActionListener {
         add(splitPane, BorderLayout.CENTER);
 
         // Frame settings
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 500);
-        setLocationRelativeTo(null);
-        setVisible(true);
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setSize(800, 500);
+//        setLocationRelativeTo(null);
+//        setVisible(true);
     }
     private void validateInputs(){
 
@@ -363,7 +363,8 @@ public class UserScreen extends JFrame implements ActionListener {
             }
         } else if (e.getSource() == addButton) {
             handleAddUser();
-        } else if (e.getSource() == updateButton) { // Implement the Update button functionality
+
+        }else if (e.getSource() == updateButton) { // Implement the Update button functionality
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
                 // Call the handleUpdateUser method to update the user details
@@ -391,6 +392,7 @@ public class UserScreen extends JFrame implements ActionListener {
             }
         }
     }
+
     private void handleUpdateUser() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow != -1) {
@@ -463,7 +465,4 @@ public class UserScreen extends JFrame implements ActionListener {
         }
     }
 
-    public static void main(String[] args) {
-        new UserScreen();
-    }
 }
