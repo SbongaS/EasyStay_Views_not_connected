@@ -1,4 +1,4 @@
-package za.ac.cput;
+package za.ac.cput.views;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,8 +15,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class UserScreen extends JFrame implements ActionListener {
 
@@ -26,7 +24,7 @@ public class UserScreen extends JFrame implements ActionListener {
     private JPanel tablePanel, buttonPanel, formPanel;
     private JTable table;
     private DefaultTableModel tableModel;
-    private JButton deleteButton, addButton;
+    private JButton deleteButton, addButton,updateButton;
     private JTextField firstNameField, lastNameField, usernameField;
     private JPasswordField passwordField;
     private JRadioButton receptionistRadio, adminRadio;
@@ -52,6 +50,7 @@ public class UserScreen extends JFrame implements ActionListener {
         table.getSelectionModel().addListSelectionListener(event -> {
             // Enable the delete button if a row is selected
             if (!event.getValueIsAdjusting() && table.getSelectedRow() != -1) {
+                updateButton.setEnabled(true);
                 deleteButton.setEnabled(true);
             } else {
                 deleteButton.setEnabled(false);
@@ -64,10 +63,18 @@ public class UserScreen extends JFrame implements ActionListener {
         deleteButton = new JButton("Delete");
         deleteButton.setEnabled(false);
         deleteButton.addActionListener(this);
-
+        updateButton = new JButton("Update User");
+        updateButton.setEnabled(false);
+        updateButton.addActionListener(this);
         // Panel for buttons (Delete button)
         buttonPanel = new JPanel();
         buttonPanel.add(deleteButton);
+        buttonPanel.add(updateButton);
+
+        updateButton.setForeground(Color.WHITE);
+        updateButton.setBackground(new Color(0, 123, 255));
+        deleteButton.setBackground(new Color(0, 123, 255));
+        deleteButton.setForeground(Color.WHITE);
 
         // Layout for the table and delete button at the bottom
         tablePanel = new JPanel(new BorderLayout());
@@ -356,6 +363,105 @@ public class UserScreen extends JFrame implements ActionListener {
             }
         } else if (e.getSource() == addButton) {
             handleAddUser();
+
+        }else if (e.getSource() == updateButton) { // Implement the Update button functionality
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                // Call the handleUpdateUser method to update the user details
+                handleUpdateUser();
+
+                // Optionally, you can update the table with new values (if changed)
+                String firstName = firstNameField.getText();
+                String lastName = lastNameField.getText();
+                String username = usernameField.getText();
+
+                // Update table model with new values from the input fields
+                if (!firstName.isEmpty()) {
+                    tableModel.setValueAt(firstName, selectedRow, 1); // Assuming first name is in the 2nd column
+                }
+                if (!lastName.isEmpty()) {
+                    tableModel.setValueAt(lastName, selectedRow, 2); // Assuming last name is in the 3rd column
+                }
+                if (!username.isEmpty()) {
+                    tableModel.setValueAt(username, selectedRow, 3); // Assuming username is in the 4th column
+                }
+
+                showAlert("Success", "User updated successfully!", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                showAlert("Error", "Please select a user to update.", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void handleUpdateUser() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            // Get values from the fields
+            String firstName = firstNameField.getText();
+            String lastName = lastNameField.getText();
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+
+            // Validate inputs
+            if (firstName.isEmpty() || lastName.isEmpty() || username.isEmpty() || password.isEmpty()) {
+                showAlert("Error", "All fields must be filled out.", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Determine role based on selected radio button
+            String roleText = receptionistRadio.isSelected() ? "Receptionist" : "Admin";
+            Role role;
+            if (roleText.equals("Receptionist")) {
+                role = RoleFactory.buildRole(2, RoleType.RECEPTIONIST);
+            } else {
+                role = RoleFactory.buildRole(1, RoleType.MANAGER);
+            }
+
+            // Build updated user object
+            User newUser = UserFactory.buildUserWithoutId(
+                    firstName,
+                    lastName,
+                    username,
+                    password,
+                    role
+            );
+
+            // Convert User object to JSON
+            String jsonUser = gson.toJson(newUser);
+
+            // Build the request body
+            RequestBody body = RequestBody.create(jsonUser, MediaType.get("application/json; charset=utf-8"));
+
+            // URL for updating the user
+            String url = "http://localhost:8080/easyStayHotel/user/update";
+
+            // Build the PUT request
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(body) // This is now correctly a PUT request
+                    .build();
+
+            // Execute the request and handle the response
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response + " with body: " + response.body().string());
+                }
+
+                // Optionally update the table row with new values
+                tableModel.setValueAt(firstName, selectedRow, 0); // Update first name column
+                tableModel.setValueAt(lastName, selectedRow, 1);  // Update last name column
+                tableModel.setValueAt(username, selectedRow, 2);   // Update username column
+                tableModel.setValueAt(password, selectedRow, 3);   // Update password column
+                tableModel.setValueAt(role.getRoleType().toString(), selectedRow, 4); // Update role column
+
+                showAlert("Success", "User updated successfully!", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                System.out.println("Error sending data: " + e.getMessage());
+                e.printStackTrace();
+                showAlert("Error", "Failed to update user: " + e.getMessage(), JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            showAlert("Error", "No row selected.", JOptionPane.ERROR_MESSAGE);
         }
     }
 

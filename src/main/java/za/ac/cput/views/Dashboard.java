@@ -1,6 +1,5 @@
 package za.ac.cput.views;
 
-import za.ac.cput.UserScreen;
 import za.ac.cput.views.BookingViews.BookingForm;
 import za.ac.cput.views.BookingViews.BookingDetail;
 //import za.ac.cput.views.BookingViews.BookingView;
