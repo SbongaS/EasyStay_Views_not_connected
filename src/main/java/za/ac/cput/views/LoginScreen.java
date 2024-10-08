@@ -12,8 +12,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LoginScreen extends JFrame implements ActionListener {
 
@@ -21,7 +19,7 @@ public class LoginScreen extends JFrame implements ActionListener {
     private static final Gson gson = new GsonBuilder().create();
     private JPanel contentPane;
     private JTextField emailTextField;
-    private JPasswordField passwordTextField; // Use JPasswordField for security
+    private JPasswordField passwordTextField;
     private JButton loginButton, cancelButton;
 
     public LoginScreen() {
@@ -94,43 +92,38 @@ public class LoginScreen extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setVisible(true);
     }
-    private void validateUser(User user){
 
-        if(user.getUserName().isEmpty()){
+    private void validateUser(User user) {
+        if (user.getUserName().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter a valid email address");
             emailTextField.requestFocus();
         } else if (user.getPassword().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter a password");
             passwordTextField.requestFocus();
-        }else {
-
+        } else {
+            JOptionPane.showMessageDialog(this, "Welcome");
+            System.out.println("Sign in successful: " + user.getUserName());
+            sendData(user);
         }
     }
+
     private void sendData(User user) {
-        final String URL = "http://localhost:8080/easyStayHotel/user/findUserByUsernameAndPassword";
-        System.out.println("Sending data to URL: " + URL);
+        final String URL = "http://localhost:8080/easyStayHotel/user/findUserByUsernameAndPassword/"
+                + user.getUserName() + "/" + user.getPassword();
+        System.out.println("Sending request to URL: " + URL);
 
-        // Validate user object before sending
-        validateUser(user);
-
-        // Convert the User object to JSON
-        String jsonLoginData = gson.toJson(user);
-        System.out.println("Login data being sent: " + jsonLoginData);
-
-        // Create request body with the User object in JSON format
-        RequestBody body = RequestBody.create(jsonLoginData, MediaType.get("application/json; charset=utf-8"));
-
-        // Build the request
+        // Build GET request
         Request request = new Request.Builder()
                 .url(URL)
-                .post(body)
+                .get()
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected code " + response + " with body: " + response.body().string());
+            }else {
+                JOptionPane.showMessageDialog(contentPane, "Login Successful");
             }
-
             // Handle the server's response
             System.out.println("Response received: " + response.body().string());
         } catch (IOException e) {
@@ -138,22 +131,19 @@ public class LoginScreen extends JFrame implements ActionListener {
         }
     }
 
-
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == loginButton) {
-
-            User user = UserFactory.buildUserLogin(emailTextField.getText(),new String(passwordTextField.getPassword()));
+            User user = UserFactory.buildUserLogin(emailTextField.getText(), new String(passwordTextField.getPassword()));
             System.out.println(user);
-           sendData(user);
-           clearTextFields();
-            JOptionPane.showMessageDialog(contentPane, "Login Successful");
+            validateUser(user);
+            clearTextFields();
         } else if (e.getSource() == cancelButton) {
-            // Clear fields
             clearTextFields();
         }
     }
-    private void clearTextFields(){
+
+    private void clearTextFields() {
         emailTextField.setText("");
         passwordTextField.setText("");
     }
